@@ -15,3 +15,9 @@
 {"ts": "2026-11-26T06:41:26.134974+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_type", "ok": true, "rows": 8, "error": null}
 {"ts": "2026-11-26T06:43:02.172883+08:00", "source_id": "hangzhou.stats", "dataset": "*", "ok": false, "rows": 0, "error": "fetch failed after 3 attempts: http://tjj.hangzhou.gov.cn/api-gateway/jpaas-publish-server/front/page/build/unit?parseType=bulidstatic&webId=3148&tplSetId=rFyaTxeaOqPZC5g5yj16X&pageType=column&tagId=列表&editType=null&pageId=1229279726: curl exit 28: curl: (28) Operation timed out after 30002 milliseconds with 0 bytes received\n"}
 {"ts": "2026-11-26T06:43:02.173094+08:00", "source_id": "hangzhou.stats.bulletin", "dataset": "*", "ok": false, "rows": 0, "error": "解析出 0 条记录"}
+{"ts": "2026-11-26T07:13:04.342742+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "presale", "ok": true, "rows": 8, "error": null}
+{"ts": "2026-11-26T07:13:04.343563+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "supply_by_district", "ok": true, "rows": 48, "error": null}
+{"ts": "2026-11-26T07:13:04.344244+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_district", "ok": true, "rows": 48, "error": null}
+{"ts": "2026-11-26T07:13:04.344478+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_type", "ok": true, "rows": 8, "error": null}
+{"ts": "2026-11-26T07:14:40.371959+08:00", "source_id": "hangzhou.stats", "dataset": "*", "ok": false, "rows": 0, "error": "fetch failed after 3 attempts: http://tjj.hangzhou.gov.cn/api-gateway/jpaas-publish-server/front/page/build/unit?parseType=bulidstatic&webId=3148&tplSetId=rFyaTxeaOqPZC5g5yj16X&pageType=column&tagId=列表&editType=null&pageId=1229279726: curl exit 28: curl: (28) Operation timed out after 30001 milliseconds with 0 bytes received\n"}
+{"ts": "2026-11-26T07:14:40.372197+08:00", "source_id": "hangzhou.stats.bulletin", "dataset": "*", "ok": false, "rows": 0, "error": "解析出 0 条记录"}
