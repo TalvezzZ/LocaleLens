@@ -1,0 +1,9 @@
+{
+  "source_id": "amap.poi",
+  "dataset": "store_density",
+  "url": "https://restapi.amap.com/v3/place/polygon",
+  "fetched_at": "2026-11-25T17:48:34.353499+08:00",
+  "sha256": "45b52e1a064ade36881250f5abd2d4a207a547deec0f560aa6b43f19492aadb8",
+  "bytes_raw": 3363,
+  "bytes_gz": 680
+}

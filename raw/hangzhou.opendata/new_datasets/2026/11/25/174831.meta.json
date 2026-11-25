@@ -1,0 +1,9 @@
+{
+  "source_id": "hangzhou.opendata",
+  "dataset": "new_datasets",
+  "url": "https://data.hangzhou.gov.cn/dop/homePage/getNewData.action",
+  "fetched_at": "2026-11-25T17:48:31.544738+08:00",
+  "sha256": "1fa752b583555b92fb1c3d14446c2278f71f973bbc8043bfed896d0d44d85945",
+  "bytes_raw": 5994,
+  "bytes_gz": 1157
+}
