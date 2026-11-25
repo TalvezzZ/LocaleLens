@@ -1,0 +1,21 @@
+# ---- Python ----
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ---- 密钥 ----
+# .env 存真实密钥，绝不进 git；.env.example 是模板，可以进
+.env
+.env.local
+
+# ---- 数据一律本地，不进 git ----
+# 只有代码、配置、文档进版本库
+raw/
+data/
+derived/
+digest/
+health/
+notes/
+exports/
+logs/

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.localelens.collect</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/zhouxinping/PycharmProjects/LocaleLens/scripts/collect.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens</string>
+
+    <!--
+      只跑两次：
+        10:00  白天抓取（验证计数器是否在零点清零 + 捕捉隔夜库存变化）
+        23:30  日终值（当日成交是累计值，过了零点就永久丢失）
+        23:55  日终值保险：若 23:30 那次失败，这次补上；
+               两次都成功时，23:55 的值会覆盖 23:30（同为 T23:00 时点，更新鲜）
+      每个源实际跑不跑，由 sources.yaml 的 min_interval_hours 决定。
+    -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key><integer>10</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>23</integer>
+            <key>Minute</key><integer>30</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>23</integer>
+            <key>Minute</key><integer>55</integer>
+        </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens/logs/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens/logs/launchd.err.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

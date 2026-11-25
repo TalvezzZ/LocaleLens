@@ -1,0 +1,155 @@
+# LocaleLens 数据源定义
+#
+# 每个源声明：抓什么、多久抓、抓下来存哪个 dataset、口径是什么。
+# 新增一个源 = 在这里加一段 + 在 adapters/ 下加一个解析器，不涉及任何数据迁移。
+
+city: 杭州
+timezone: Asia/Shanghai
+
+sources:
+  - id: tmsf.transaction_dynamic
+    name: 透明售房网 · 交易动态
+    # 数据来源：杭州市住保房管网（页面底部声明）
+    base_url: https://tmsf.com/newhouse/transactionDynamic_index.htm
+    official_source: 杭州市住房保障和房产管理局
+    operator: 杭州透明文化传媒有限公司
+    # 该栏目官方说明：每小时统计一次，可能有延迟，以网签备案数据为准
+    declared_refresh: hourly
+    # 我们实际抓取频率（日内变化有限，4 次足够，省 80% 存储）
+    fetch_schedule: "0 10,23 * * *"   # 见 README 采集频率
+    min_interval_hours: 0
+    politeness:
+      min_interval_seconds: 3
+      max_pages_per_run: 1
+      note: 个人研究用途，低频、不商用、不转售；保留来源标注
+    datasets:
+      - key: supply_by_district
+        title: 新房可售（按区县）
+        period_type: hour
+        grain: district
+      - key: transaction_by_district
+        title: 新房当日成交（按区县）
+        period_type: hour
+        grain: district
+      - key: transaction_by_type
+        title: 新房当日成交（按房屋用途）
+        period_type: hour
+        grain: city
+      - key: presale
+        title: 批准预售
+        period_type: month
+        grain: city
+
+  # ---- 以下为待验证源，先占位，跑通再加 ----
+  - id: tmsf.presale_approval
+    name: 透明售房网 · 商品房预售审批公告
+    base_url: https://tmsf.com/newhouse/transactionDynamic_presaleapproval.htm
+    official_source: 杭州市住房保障和房产管理局
+    enabled: true
+    fetch_schedule: "0 10,23 * * *"   # 见 README 采集频率
+    min_interval_hours: 20
+    politeness:
+      min_interval_seconds: 3
+      daily_pages: 1          # 日常只抓第 1 页，足够发现新增
+      backfill_pages: 8       # --backfill 时翻完全部分页
+    datasets:
+      - key: presale_approval
+        title: 预售审批公告（事件流）
+        period_type: instant
+        grain: project
+
+  - id: tmsf.cancel_contract
+    name: 透明售房网 · 解除合同公示
+    base_url: https://tmsf.com/newhouse/transactionDynamic_cancel.htm
+    official_source: 杭州市住房保障和房产管理局
+    enabled: true
+    fetch_schedule: "0 10,23 * * *"   # 见 README 采集频率
+    min_interval_hours: 20
+    politeness:
+      min_interval_seconds: 3
+      daily_pages: 1
+      backfill_pages: 8
+    datasets:
+      - key: cancel_contract
+        title: 解除合同公示（退房信号）
+        period_type: instant
+        grain: unit
+    note: 原购买人官网已脱敏为 ***；实测分页仅 8 页，历史窗口约一周
+
+  - id: hangzhou.stats
+    name: 杭州市统计局
+    base_url: http://tjj.hangzhou.gov.cn
+    official_source: 杭州市统计局
+    enabled: true
+    fetch_schedule: "0 10,19 * * *"
+    min_interval_hours: 144
+    # 列表页是 JS 渲染，实际走 jpaas 接口；参数已实测固定
+    web_id: "3148"
+    tpl_set_id: rFyaTxeaOqPZC5g5yj16X
+    politeness:
+      min_interval_seconds: 5
+    note: |
+      v1 只做「发布事件 + PDF 原件归档」，不解析 PDF 表格。
+      月报/年鉴的表格结构每期都可能变，解析脆弱；先保证原件在 raw/ 里，
+      后续可用新解析器回填历史。这才是 L0 快照的价值。
+    columns:
+      - key: monthly_report
+        title: 进度数据·月报
+        page_id: 1229279726
+        download_pdf: true
+        max_downloads_per_run: 6
+        event_type: stats_publication
+      - key: stat_bulletin
+        title: 统计公报
+        page_id: 1229279682
+        download_pdf: true
+        max_downloads_per_run: 4
+        event_type: stats_publication
+      - key: stat_yearbook
+        title: 统计年鉴
+        page_id: 1229453592
+        download_pdf: false     # 年鉴 PDF 体积大，先只记录发布事件
+        event_type: stats_publication
+
+  - id: hangzhou.opendata
+    name: 杭州市数据开放平台
+    base_url: https://data.hangzhou.gov.cn
+    official_source: 杭州市数据资源管理局
+    enabled: true
+    fetch_schedule: "0 11 * * *"
+    min_interval_hours: 144
+    politeness:
+      min_interval_seconds: 3
+    note: |
+      平台是 Vue SPA，首页走 Struts2 接口。深度数据集检索接口藏在懒加载 chunk 里，
+      暂不逆向。当前只取：
+        getNewData.action         新上架数据集（事件流，用于自动发现新源）
+        getPlatformSituation.action 平台规模（观测值，看开放进度）
+      平台自报：3825 个数据集 / 4301 个 API / 67 个部门 / 13 个区县。
+    datasets:
+      - key: new_datasets
+        title: 新上架数据集
+        event_type: dataset_listed
+      - key: platform_situation
+        title: 平台规模
+        period_type: day
+
+  - id: amap.poi
+    name: 高德地图 POI · 商圈门店密度
+    base_url: https://restapi.amap.com/v3/place/text
+    enabled: true          # 需要 .env 里的 AMAP_KEY，没有 key 时自动跳过
+    requires_secret: AMAP_KEY
+    fetch_schedule: "0 12 * * 1"   # 每周一次足够，门店存量变化慢
+    min_interval_hours: 660
+    politeness:
+      min_interval_seconds: 0.5
+    note: |
+      按区县统计门店数量，作为「生意机会 / 消费活跃度」的代理指标。
+      口径边界：这是高德 POI 库里的门店存量，不是工商注册数、不是实际营业数，
+      更不是客流或营收。只能做横向对比和自身趋势，不能做绝对值推断。
+      区县 adcode 已按 2021 年区划调整后设置（临平、钱塘）。
+    datasets:
+      - key: store_density
+        title: 门店密度
+        period_type: day
+        grain: district
