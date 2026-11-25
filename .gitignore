@@ -19,3 +19,7 @@ health/
 notes/
 exports/
 logs/
+
+# ---- IDE ----
+.idea/
+.vscode/
