@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.localelens.daily</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/zhouxinping/PycharmProjects/LocaleLens/scripts/local-daily.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens</string>
+
+    <!--
+      每天 12:00 跑一次：拉云端数据 → 采统计局 → 推回云端。
+      统计局月报在每月 28-30 日发布，每天跑一次足够覆盖；
+      因为源里有比对校验，没有新一期时几秒就跳过。
+
+      机器休眠时 launchd 会在唤醒后补跑（StartCalendarInterval 的这个行为），
+      所以错过 12:00 也没关系 —— 统计局数据永久留档，晚几小时零损失。
+    -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key><integer>12</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens/logs/daily.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens/logs/daily.err.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

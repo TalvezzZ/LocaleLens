@@ -238,21 +238,53 @@ bash scripts/push-local-data.sh --dry-run    # 只看会新增/修改什么
 
 ## 定时任务
 
-用 macOS launchd，不是 cron。
+两个层面，分工明确：
+
+### GitHub Actions（云端）
+
+负责境外可访问的源：tmsf 交易动态与两个公示、数据开放平台、高德 POI。
+
+| 时间（北京） | 用途 |
+|---|---|
+| 08:00 | 早晨一次，确认计数器是否已清零 |
+| 18:00–23:00，每小时 | 密集窗口，兜住当日日终值 |
+
+**为什么晚上要跑 6 次**：当日成交是累计计数器，过了零点就永久丢失。
+GitHub 的 cron 实测会延迟 8–9 小时，不能赌单个时间点。
+多跑无害——写入同一个 `(region, indicator, period)` 键，后跑的覆盖前跑的。
+
+### 本地 launchd（每天 12:00）
+
+负责只有本机能访问的统计局（`*.hangzhou.gov.cn` 境外被阻断）。
 
 ```bash
-# 查看状态
 launchctl list | grep localelens
 
-# 立即手动跑一次
-bash scripts/collect.sh
+# 手动跑一次
+bash scripts/local-daily.sh
 
-# 卸载
-launchctl unload ~/Library/LaunchAgents/com.localelens.collect.plist
-rm ~/Library/LaunchAgents/com.localelens.collect.plist
+# 看日志
+tail -30 logs/local-daily.log
 ```
 
-日志在 `logs/collect.log`。每天 4 次，一年原始快照约 50 MB。
+它串起三步：**拉云端数据 → 采统计局 → 推回云端**。每步都幂等：
+
+```
+[1/3] 拉取云端数据     → ✓ 已是最新
+[2/3] 采集统计局       → ○ 无新增（3 个栏目已是最新）
+[3/3] 推送本地数据     → ○ 无需推送
+总共 5 秒
+```
+
+机器休眠时 launchd 会在唤醒后补跑。统计局数据永久留档，晚几小时零损失。
+
+### 卸载
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.localelens.daily.plist
+launchctl unload ~/Library/LaunchAgents/com.localelens.collect.plist
+rm ~/Library/LaunchAgents/com.localelens.{daily,collect}.plist
+```
 
 ## 踩过的坑（改代码前必读）
 
