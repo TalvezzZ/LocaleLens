@@ -29,9 +29,34 @@ if ! git rev-parse --git-dir >/dev/null 2>&1; then
   exit 1
 fi
 
+
+# ---- 带重试的 git 操作 ----
+# 网络偶发抖动时（Empty reply / 75s 超时），自动退避重试，不必人工介入。
+git_retry() {
+  local desc="$1"; shift
+  local attempt=1
+  local max=4
+  while [ "$attempt" -le "$max" ]; do
+    if "$@" 2>/tmp/git-retry-err; then
+      return 0
+    fi
+    local err
+    err=$(tail -1 /tmp/git-retry-err 2>/dev/null | tr -d '\r')
+    if [ "$attempt" -lt "$max" ]; then
+      local wait=$((attempt * 5))
+      echo "  ⟳ $desc 失败（${err:0:60}），${wait}s 后重试 $attempt/$max"
+      sleep "$wait"
+    else
+      echo "  ✗ $desc 失败 $max 次：${err:0:120}"
+      return 1
+    fi
+    attempt=$((attempt + 1))
+  done
+}
+
 echo "→ 拉取 data 分支…"
-if ! git fetch --depth=1 origin data 2>/dev/null; then
-  echo "✗ 拉取失败，检查网络"
+if ! git_retry "拉取 data 分支" git fetch --depth=1 origin data; then
+  echo "✗ 拉取失败，稍后重试"
   exit 1
 fi
 
@@ -103,7 +128,10 @@ fi
 git -c user.name="locale-lens-local" \
     -c user.email="local@users.noreply.github.com" \
     commit -q -m "data(local): 统计局 $(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M')"
-git push -q origin HEAD:data
+if ! git_retry "推送到 data 分支" git push -q origin HEAD:data; then
+  echo "✗ 推送失败。本地数据未受影响，稍后重新执行即可"
+  exit 1
+fi
 
 echo
 echo "✓ 已推送到 data 分支"
