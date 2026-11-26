@@ -1,0 +1,48 @@
+name: probe
+
+# 快速网络探测：只测源站可达性，不采集数据。
+# 用来判断「境外 runner 能不能访问国内站点」，以及 http / https 的差别。
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"   # 每周一 11:00 北京，监控可达性有没有变化
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 探测
+        run: |
+          set +e
+          probe() {
+            local u="$1"
+            local out
+            out=$(curl -sS -o /dev/null \
+              -w "%{http_code}|%{time_connect}|%{time_total}" \
+              --max-time 20 -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
+              -H "Accept-Language: zh-CN,zh;q=0.9" -L "$u" 2>&1 | tail -1)
+            printf "%-62s %s\n" "$u" "$out"
+          }
+
+          echo "格式: URL  状态码|建连秒|总秒数   (000=连不上)"
+          echo "--------------------------------------------------------------"
+          probe "http://tjj.hangzhou.gov.cn/"
+          probe "https://tjj.hangzhou.gov.cn/"
+          probe "https://tjj.hangzhou.gov.cn/col/col1229279726/index.html"
+          probe "http://tjj.hangzhou.gov.cn/api-gateway/jpaas-publish-server/front/page/build/unit?parseType=bulidstatic&webId=3148&tplSetId=rFyaTxeaOqPZC5g5yj16X&pageType=column&tagId=%E5%88%97%E8%A1%A8&editType=null&pageId=1229279726"
+          probe "https://tjj.hangzhou.gov.cn/api-gateway/jpaas-publish-server/front/page/build/unit?parseType=bulidstatic&webId=3148&tplSetId=rFyaTxeaOqPZC5g5yj16X&pageType=column&tagId=%E5%88%97%E8%A1%A8&editType=null&pageId=1229279726"
+          probe "https://www.hangzhou.gov.cn/"
+          probe "https://data.hangzhou.gov.cn/dop/homePage/getNewData.action"
+          echo "--------------------------------------------------------------"
+          echo "DNS 解析："
+          getent hosts tjj.hangzhou.gov.cn || echo "  (解析失败)"
+
+      - name: ping 与路由
+        run: |
+          set +e
+          ping -c 3 -W 3 tjj.hangzhou.gov.cn || echo "  ping 不通（可能 ICMP 被禁或不可达）"
