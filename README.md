@@ -158,6 +158,84 @@ uv run locale-lens check     # 单独跑检查
 低频不是为了省磁盘（快照平均才 8.8 KB），而是**降低被封的风险**——
 一旦源站封禁，整个项目就断粮了。
 
+## 数据在 GitHub 和本地之间怎么走
+
+数据存在**仓库的 `data` 分支**（`main` 只有代码）。本地项目目录里，数据被 `.gitignore` 忽略。
+
+```
+GitHub 仓库
+├── main 分支        代码（23 个文件）
+└── data 分支        数据（raw/ data/ derived/ digest/ health/）
+
+本地项目目录
+├── 代码             跟 main 同步（git pull）
+└── 数据             跟 data 分支同步（下面两个脚本）
+```
+
+### 从 GitHub 拉到本地
+
+```bash
+bash scripts/sync-data.sh              # 同步
+bash scripts/sync-data.sh --dry-run    # 只看差异
+```
+
+```
+→ 拉取 data 分支…
+  data 分支版本: d65d766c
+→ 差异预览…
+  新增文件: 0
+  内容变化: 0
+  本地独有: 保留不动（如本地跑的统计局数据）
+✓ 同步完成
+```
+
+行为说明：
+
+- **自动备份**到 `../LocaleLens-data-backup-<时间戳>/`，确认无误后可删
+- **本地独有的文件不会被删**：tar 解包是「覆盖同名 + 保留多余」，
+  所以本地跑的统计局数据不会因为云端没有而消失
+- **同一天同一文件，云端覆盖本地** → 所以同步前一定备份
+- 记录 `data` 分支 SHA，没变化时直接跳过
+
+### 从本地推到 GitHub
+
+统计局只能在本地跑（`*.hangzhou.gov.cn` 境外被阻断），所以需要反向推送：
+
+```bash
+bash scripts/push-local-data.sh              # 推送
+bash scripts/push-local-data.sh --dry-run    # 只看会新增/修改什么
+```
+
+**关键设计**：不是用本地数据整体覆盖远端，而是**把本地文件叠加到远端已有基础上**。
+只处理 `hangzhou.stats` 和 `hangzhou.stats.bulletin` 两个源，
+云端跑的 tmsf / POI / 开放平台数据一个都不碰。
+
+实测输出：
+
+```
+  新增: 53   修改: 0   未变: 0
+✓ 已推送到 data 分支
+
+远端现在包含的源：
+  amap.poi
+  hangzhou.opendata
+  hangzhou.stats
+  hangzhou.stats.bulletin
+  tmsf.cancel_contract
+  tmsf.presale_approval
+  tmsf.transaction_dynamic
+```
+
+### 为什么分两个方向
+
+| 源 | 在哪跑 | 为什么 |
+|---|---|---|
+| tmsf 交易动态、两个公示 | GitHub | 境外可访问；需要每天多次抓日终值 |
+| 开放平台、高德 POI | GitHub | 境外可访问 |
+| **统计局** | **本地** | `*.hangzhou.gov.cn` 境外被阻断；数据永久留档，滞后抓取零损失 |
+
+两个方向都幂等，重复执行不会产生重复数据。
+
 ## 定时任务
 
 用 macOS launchd，不是 cron。
