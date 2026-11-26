@@ -31,3 +31,7 @@
 {"ts": "2026-11-26T09:49:40.105053+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "supply_by_district", "ok": true, "rows": 48, "error": null}
 {"ts": "2026-11-26T09:49:40.106203+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_district", "ok": true, "rows": 48, "error": null}
 {"ts": "2026-11-26T09:49:40.106674+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_type", "ok": true, "rows": 8, "error": null}
+{"ts": "2026-11-27T03:21:54.802006+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "*", "ok": false, "rows": 0, "error": "fetch failed after 3 attempts: https://tmsf.com/newhouse/transactionDynamic_index.htm: curl exit 28: curl: (28) Connection timed out after 30002 milliseconds\n"}
+{"ts": "2026-11-27T03:21:57.302330+08:00", "source_id": "tmsf.presale_approval", "dataset": "presale_approval", "ok": true, "rows": 10, "error": null}
+{"ts": "2026-11-27T03:22:00.223175+08:00", "source_id": "tmsf.cancel_contract", "dataset": "cancel_contract", "ok": true, "rows": 20, "error": null}
+{"ts": "2026-11-27T03:22:03.427459+08:00", "source_id": "hangzhou.stats.monthly", "dataset": "monthly_indicators", "ok": true, "rows": 3256, "error": null}

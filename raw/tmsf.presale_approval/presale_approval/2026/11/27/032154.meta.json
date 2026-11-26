@@ -1,0 +1,9 @@
+{
+  "source_id": "tmsf.presale_approval",
+  "dataset": "presale_approval",
+  "url": "https://tmsf.com/newhouse/transactionDynamic_presaleapproval.htm?page=1",
+  "fetched_at": "2026-11-27T03:21:54.802387+08:00",
+  "sha256": "619d6e474ff1c4e45ac57bff03eed611107899dd51ee229bdb05417370db16ce",
+  "bytes_raw": 21895,
+  "bytes_gz": 5523
+}
