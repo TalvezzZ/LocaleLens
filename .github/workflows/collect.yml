@@ -1,22 +1,29 @@
 name: collect
 
-# 采集在 GitHub 的 runner 上跑，不受本机休眠影响。
-# 时间用 UTC：北京时间 = UTC+8
-#   02:00 UTC = 10:00 北京   白天抓一次
-#   13:30 UTC = 21:30 北京   ┐
-#   14:30 UTC = 22:30 北京   ├ 晚上多抓几次，因为「当日成交」过了零点就没了
-#   15:00 UTC = 23:00 北京   ┘ 多次抓取落到同一个 (region,indicator,period) 键，后者覆盖前者
+# 采集跑在 GitHub runner 上，不受本机休眠影响。
 #
-# 为什么不排 23:55：Actions 的 cron 在高峰期会延迟几分钟到几十分钟，
-# 23:55 有可能跑到次日 00:10，那时抓到的是「新的一天」，前一天的日终值就丢了。
-# 留足 1 小时余量更稳。
+# ⚠️ 关于 cron 时间（实测踩过的坑）：
+#   2026-11-25 设了 UTC 13:30 / 14:30 / 15:00 三个点（北京 21:30 / 22:30 / 23:00），
+#   实际在 UTC 22:40 / 23:12 / 23:23 执行 —— 延迟了 8~9 小时，跑到北京次日早上，
+#   抓到的是新一天的「0 套」，前一天的日终值丢失。
+#   GitHub 免费 runner 的 cron 在高峰期延迟是常态，不能依赖单个时间点。
+#
+# 应对：把触发分散到北京 18:00–23:00 整个窗口（UTC 10:00–15:00，每小时一次）。
+#   因为「当日成交」写入同一个 (region, indicator, period) 键，后跑的覆盖前跑的，
+#   所以多跑几次是无害的 —— 只要有一次落在北京 23:xx，就拿到接近日终的值。
+#   即使某次被延迟到次日凌晨，它写的是新一天的文件，也不会污染昨天。
+#
+# 统计局（*.hangzhou.gov.cn）在境外 runner 被阻断，由本地定时任务负责，这里显式排除。
 
 on:
   schedule:
-    - cron: "0 2 * * *"
-    - cron: "30 13 * * *"
-    - cron: "30 14 * * *"
-    - cron: "0 15 * * *"
+    - cron: "0 0 * * *"    # 北京 08:00  早晨一次，确认计数器是否已清零
+    - cron: "0 10 * * *"   # 北京 18:00  ┐
+    - cron: "0 11 * * *"   # 北京 19:00  │
+    - cron: "0 12 * * *"   # 北京 20:00  ├ 晚间窗口，多跑几次兜住日终值
+    - cron: "0 13 * * *"   # 北京 21:00  │
+    - cron: "0 14 * * *"   # 北京 22:00  │
+    - cron: "0 15 * * *"   # 北京 23:00  ┘
   workflow_dispatch:
     inputs:
       source:
@@ -94,6 +101,9 @@ jobs:
           if [ -n "${{ inputs.source }}" ]; then ARGS="$ARGS --source ${{ inputs.source }}"; fi
           if [ "${{ inputs.backfill }}" = "true" ]; then ARGS="$ARGS --backfill"; fi
           if [ "${{ inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
+          # 统计局本地跑，这里排除
+          ARGS="$ARGS --exclude hangzhou.stats --exclude hangzhou.stats.bulletin"
+          echo "北京现在: $(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')"
           uv run locale-lens run $ARGS
 
       - name: 显示摘要

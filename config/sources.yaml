@@ -82,7 +82,7 @@ sources:
     official_source: 杭州市统计局
     enabled: true
     fetch_schedule: "0 10,19 * * *"
-    min_interval_hours: 144
+    min_interval_hours: 20
     # 列表页是 JS 渲染，实际走 jpaas 接口；参数已实测固定
     web_id: "3148"
     tpl_set_id: rFyaTxeaOqPZC5g5yj16X

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.localelens.stats</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/zhouxinping/PycharmProjects/LocaleLens/scripts/collect-local-stats.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens</string>
+
+    <!--
+      每周跑一次，但每天都给一次机会：
+      统计局月报在每月 28-30 日发布，一周一次足够覆盖。
+      设成每天 12:00 更简单 —— 因为源里有比对校验，
+      没有新一期时会立刻跳过（几秒完成），有新的才真正下载。
+      机器休眠时 launchd 会在唤醒后补跑。
+    -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key><integer>12</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens/logs/stats.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/zhouxinping/PycharmProjects/LocaleLens/logs/stats.err.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

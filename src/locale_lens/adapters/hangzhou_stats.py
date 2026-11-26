@@ -28,12 +28,17 @@ from .. import load_sources, now, rel
 from ..fetch import fetch, fetch_bytes, save_raw, save_raw_bytes
 from ..schema import Event
 from ..store import all_events
+from . import NothingToDo
 
 SOURCE_ID = "hangzhou.stats"
 DEFAULT_BASE = "http://tjj.hangzhou.gov.cn"
 DEFAULT_TPL = "rFyaTxeaOqPZC5g5yj16X"
 DEFAULT_WEB_ID = "3148"
 LIST_EP = "/api-gateway/jpaas-publish-server/front/page/build/unit"
+
+# 正文里确认没有附件的标记。用它把「本来就没有附件」和「附件下载失败」区分开，
+# 否则这类栏目会被误判为"没处理完"，每轮都重新抓一遍。
+NO_ATTACHMENT = "正文无附件（HTML 正文型）"
 
 
 class HangzhouStats:
@@ -125,6 +130,7 @@ class HangzhouStats:
 
         ts = now()
         out: list[Event] = []
+        skipped_columns: list[str] = []
 
         for col in cfg.get("columns", []):
             key = col["key"]
@@ -139,6 +145,22 @@ class HangzhouStats:
                 continue
 
             existing = all_events(source_id=SOURCE_ID, dataset=key)
+
+            # —— 比对校验：列表页第一条就是最新一期。
+            # 如果它已经在库里，并且 PDF 也已归档，说明这一期没有新东西，
+            # 整个栏目直接跳过，不必逐条比对、更不必重下附件。
+            newest_title, newest_href, newest_date = items[0]
+            prev = existing.get(newest_href)
+            if not backfill and prev is not None:
+                payload_prev = prev.get("payload") or {}
+                pdf_ok = bool(payload_prev.get("pdf_path"))
+                # 有些栏目（如统计公报）是 HTML 正文、本来就没有附件。
+                # 只要探测过一次并确认「无附件」，就算处理完毕，不能每轮都重试。
+                no_attachment = payload_prev.get("pdf_error") == NO_ATTACHMENT
+                need_pdf = bool(col.get("download_pdf", False))
+                if pdf_ok or no_attachment or not need_pdf:
+                    skipped_columns.append(f"{key}（最新：{newest_title} / {newest_date}）")
+                    continue
             downloaded = 0
 
             for title, href, date in items:
@@ -187,7 +209,7 @@ class HangzhouStats:
                             payload["pdf_error"] = str(exc)[:200]
                         time.sleep(gap)
                     else:
-                        payload["pdf_error"] = "正文未找到附件"
+                        payload["pdf_error"] = NO_ATTACHMENT
 
                 out.append(
                     Event(
@@ -208,4 +230,14 @@ class HangzhouStats:
 
             time.sleep(gap)
 
+        if skipped_columns:
+            print(f"    已是最新，跳过 {len(skipped_columns)} 个栏目：")
+            for line in skipped_columns:
+                print(f"      - {line}")
+
+        if not out:
+            raise NothingToDo(
+                "所有栏目均无新增"
+                + (f"（{len(skipped_columns)} 个已是最新）" if skipped_columns else "")
+            )
         return out

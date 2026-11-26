@@ -24,7 +24,10 @@ def cmd_run(args: argparse.Namespace) -> int:
             return 2
         selected = {args.source: adapters[args.source]}
     else:
-        selected = adapters
+        selected = dict(adapters)
+
+    for ex in args.exclude or []:
+        selected.pop(ex, None)
 
     touched_days: set[str] = set()
     cfg_map = {s["id"]: s for s in load_sources().get("sources", [])}
@@ -159,6 +162,12 @@ def main(argv: list[str] | None = None) -> int:
 
     p_run = sub.add_parser("run", help="抓取并落盘")
     p_run.add_argument("--source", help="只跑指定源")
+    p_run.add_argument(
+        "--exclude",
+        action="append",
+        metavar="SOURCE_ID",
+        help="排除某个源（可重复），例如本地跑统计局时排除它、云端跑其余",
+    )
     p_run.add_argument(
         "--force",
         action="store_true",
