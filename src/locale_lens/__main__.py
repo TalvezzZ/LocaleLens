@@ -101,6 +101,17 @@ def cmd_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_site(args: argparse.Namespace) -> int:
+    from .site import build
+
+    path = build()
+    size = path.stat().st_size
+    print(f"✓ 页面已生成：{path}")
+    print(f"  大小 {size:,} 字节，单文件无外部依赖")
+    print(f"  打开方式：open {path}")
+    return 0
+
+
 def cmd_config(args: argparse.Namespace) -> int:
     from . import CONFIG, ROOT, get_secret, load_sources
 
@@ -189,6 +200,9 @@ def main(argv: list[str] | None = None) -> int:
 
     p_c = sub.add_parser("check", help="数据质量检查（口径变更 / 修订）")
     p_c.set_defaults(func=cmd_check)
+
+    p_site = sub.add_parser("site", help="生成静态展示页面")
+    p_site.set_defaults(func=cmd_site)
 
     p_cfg = sub.add_parser("config", help="查看密钥与源配置状态")
     p_cfg.set_defaults(func=cmd_config)
