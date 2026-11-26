@@ -1,0 +1,9 @@
+{
+  "source_id": "tmsf.transaction_dynamic",
+  "dataset": "transaction_dynamic",
+  "url": "https://tmsf.com/newhouse/transactionDynamic_index.htm",
+  "fetched_at": "2026-11-26T09:49:37.516107+08:00",
+  "sha256": "86c4e9a8f31e6a54c8eee28f8171b3ec091b47151944051ba0da490253a0b1eb",
+  "bytes_raw": 54501,
+  "bytes_gz": 9285
+}
