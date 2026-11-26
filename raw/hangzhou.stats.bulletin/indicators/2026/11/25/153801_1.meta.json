@@ -1,0 +1,9 @@
+{
+  "source_id": "hangzhou.stats.bulletin",
+  "dataset": "indicators",
+  "url": "http://tjj.hangzhou.gov.cn/art/2025/3/20/art_1229279682_4338665.html",
+  "fetched_at": "2026-11-25T15:38:01.417197+08:00",
+  "sha256": "92e0551b3c4fe4ca723952173a07b1f24239f705d5afbeef9b7f7aef02eb3966",
+  "bytes_raw": 112890,
+  "bytes_gz": 13611
+}
