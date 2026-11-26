@@ -25,6 +25,7 @@ class Adapter(Protocol):
 def get_adapters() -> dict[str, Adapter]:
     from .amap_poi import AmapPoi
     from .hangzhou_bulletin import HangzhouBulletinIndicators
+    from .hangzhou_monthly_pdf import HangzhouMonthlyPdf
     from .hangzhou_opendata import HangzhouOpenData
     from .hangzhou_stats import HangzhouStats
     from .tmsf_lists import TmsfCancelContract, TmsfPresaleApproval
@@ -37,6 +38,7 @@ def get_adapters() -> dict[str, Adapter]:
         HangzhouStats(),
         HangzhouBulletinIndicators(),
         HangzhouOpenData(),
+        HangzhouMonthlyPdf(),
         AmapPoi(),
     ]
     return {a.source_id: a for a in instances}

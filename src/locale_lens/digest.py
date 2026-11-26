@@ -18,6 +18,7 @@ STATS_COLUMNS = [
     ("年鉴", "hangzhou.stats", "stat_yearbook"),
 ]
 BULLETIN_IND = ("hangzhou.stats.bulletin", "indicators")
+MONTHLY_IND = ("hangzhou.stats.monthly", "monthly_indicators")
 
 
 def _latest(rows: list[dict], indicator: str) -> tuple[dict[str, float], str | None]:
@@ -323,6 +324,47 @@ def build_daily(day: str) -> Path:
     else:
         lines.append("本日未取到开放平台数据。")
     lines.append("")
+
+    # ---- 五之二、月报指标 ----
+    monthly = []
+    for d in available_days(source_id=MONTHLY_IND[0], dataset=MONTHLY_IND[1]):
+        monthly.extend(read_day(source_id=MONTHLY_IND[0], dataset=MONTHLY_IND[1], day=d))
+    if monthly:
+        periods = sorted({r["period"] for r in monthly if str(r["period"]).count("-") == 1})
+        latest = periods[-1] if periods else None
+        lines.append(f"### 月报指标（最新期间 `{latest}`）")
+        lines.append("")
+        if latest:
+            picks = [
+                ("国内贸易·社会消费品零售总额", "社会消费品零售总额"),
+                ("价格指数·居民消费价格指数·当月同比", "CPI 当月同比"),
+                ("价格指数·新建商品住宅价格指数·当月同比", "新房价格指数（同比）"),
+                ("价格指数·二手住宅价格指数·当月同比", "二手房价格指数（同比）"),
+                ("人民生活·全市居民人均可支配收入", "人均可支配收入"),
+                ("工业·规上工业增加值", "规上工业增加值（同比）"),
+            ]
+            lines.append("| 指标 | 值 | 单位 |")
+            lines.append("|---|---:|---|")
+            for ind_key, label in picks:
+                matched = [
+                    r for r in monthly
+                    if r["indicator"] == ind_key and r["period"] == latest
+                ]
+                if not matched:
+                    continue
+                r = matched[0]
+                unit = r.get("unit") or ("指数" if "指数" in ind_key else "")
+                lines.append(f"| {label} | {_fmt(r.get('value'))} | {unit} |")
+            lines.append("")
+            lines.append(
+                "> 月报共解析 " + str(len(monthly)) + " 条指标，覆盖 "
+                + str(len(periods)) + " 个期间。完整数据见 "
+                "`data/hangzhou.stats.monthly/`。"
+            )
+            lines.append(
+                "> 注意：累计口径与当月口径已分开存储（见 `notes` 的 `period_kind`），**不要跨口径直接比较**。"
+            )
+        lines.append("")
 
     # ---- 六、商圈门店密度 ----
     lines.append("## 六、商圈门店密度（高德 POI）")
