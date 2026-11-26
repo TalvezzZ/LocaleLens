@@ -315,7 +315,8 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:var(--serif);font-size:15px;line-height:1.7;
   -webkit-font-smoothing:antialiased}
-.wrap{max-width:1180px;margin:0 auto;padding:40px 32px 80px}
+.wrap{max-width:1320px;margin:0 auto;padding:40px 32px 80px}
+@media(min-width:1700px){.wrap{max-width:1480px}}
 
 header{border-bottom:2px solid var(--ink);padding-bottom:14px}
 .hd{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
@@ -427,9 +428,10 @@ td.r,th.r{text-align:right;font-family:var(--mono);
 footer{margin-top:52px;padding-top:14px;border-top:2px solid var(--ink);
   font-size:11.5px;color:var(--ink-3);font-family:var(--mono);line-height:1.9}
 
-@media(max-width:680px){
+@media(max-width:560px){
   .wrap{padding:24px 18px 56px}
   h1{font-size:23px}
+  /* 560px 以下才单列：680px 时 2 列仍有 318px/卡，比 643px 单卡更易扫读 */
   .grid{grid-template-columns:1fr}
   .rail{overflow-x:auto;-webkit-overflow-scrolling:touch}
   /* 覆盖度条：竖排文字可读性极差，改为上下堆叠 */
@@ -442,6 +444,13 @@ footer{margin-top:52px;padding-top:14px;border-top:2px solid var(--ink);
   .row .k{flex:0 0 auto;max-width:52%}
   .row .v{flex:1 1 auto;text-align:right;word-break:break-all}
   .hd-meta{font-size:10.5px}
+}
+@media(min-width:561px) and (max-width:820px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .wrap{padding:28px 22px 64px}
+  h1{font-size:26px}
+  table{font-size:12.5px}
+  th,td{padding:6px 8px 6px 0}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 """
