@@ -1,0 +1,9 @@
+{
+  "source_id": "tmsf.cancel_contract",
+  "dataset": "cancel_contract",
+  "url": "https://tmsf.com/newhouse/transactionDynamic_cancel.htm?page=1",
+  "fetched_at": "2026-11-28T03:14:21.181494+08:00",
+  "sha256": "1905dbc0f8413254273d559a4ffdd5c3f5388ab73c47405b6347bf664e9cec6f",
+  "bytes_raw": 24292,
+  "bytes_gz": 5977
+}
