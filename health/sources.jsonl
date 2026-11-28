@@ -97,3 +97,8 @@
 {"ts": "2026-11-28T07:04:27.920327+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_district", "ok": true, "rows": 48, "error": null}
 {"ts": "2026-11-28T07:04:27.920948+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_type", "ok": true, "rows": 8, "error": null}
 {"ts": "2026-11-28T07:04:28.125934+08:00", "source_id": "hangzhou.stats.monthly", "dataset": "*", "ok": true, "rows": 0, "error": null}
+{"ts": "2026-11-28T15:14:03.298302+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "presale", "ok": true, "rows": 8, "error": null}
+{"ts": "2026-11-28T15:14:03.328222+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "supply_by_district", "ok": true, "rows": 48, "error": null}
+{"ts": "2026-11-28T15:14:03.338135+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_district", "ok": true, "rows": 48, "error": null}
+{"ts": "2026-11-28T15:14:03.338524+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_type", "ok": true, "rows": 8, "error": null}
+{"ts": "2026-11-28T15:14:03.504613+08:00", "source_id": "hangzhou.stats.monthly", "dataset": "*", "ok": true, "rows": 0, "error": null}
