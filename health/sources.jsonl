@@ -117,3 +117,8 @@
 {"ts": "2026-11-29T02:48:11.271533+08:00", "source_id": "hangzhou.stats.monthly", "dataset": "*", "ok": true, "rows": 0, "error": null}
 {"ts": "2026-11-29T03:54:03.920168+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "*", "ok": false, "rows": 0, "error": "fetch failed after 3 attempts: https://tmsf.com/newhouse/transactionDynamic_index.htm: curl exit 28: curl: (28) Connection timed out after 30002 milliseconds\n"}
 {"ts": "2026-11-29T03:54:04.078981+08:00", "source_id": "hangzhou.stats.monthly", "dataset": "*", "ok": true, "rows": 0, "error": null}
+{"ts": "2026-11-29T04:43:47.722240+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "presale", "ok": true, "rows": 8, "error": null}
+{"ts": "2026-11-29T04:43:47.723472+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "supply_by_district", "ok": true, "rows": 48, "error": null}
+{"ts": "2026-11-29T04:43:47.724620+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_district", "ok": true, "rows": 48, "error": null}
+{"ts": "2026-11-29T04:43:47.725137+08:00", "source_id": "tmsf.transaction_dynamic", "dataset": "transaction_by_type", "ok": true, "rows": 8, "error": null}
+{"ts": "2026-11-29T04:43:47.956799+08:00", "source_id": "hangzhou.stats.monthly", "dataset": "*", "ok": true, "rows": 0, "error": null}
